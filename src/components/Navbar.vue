@@ -1,8 +1,8 @@
 <template>
   <nav class="navbar navbar-dark bg-dark mb-4">
-    <a class="navbar-brand" href="#">Brand name</a>
+    <div class="navbar-brand cursor-pointer" @click="goToHomePage">Brand name</div>
     <div class="" id="navbarColor01">
-      <i class="fa fa-shopping-cart lead text-light" @click="goToCart"></i>
+      <i class="fa fa-shopping-cart lead text-light cursor-pointer" @click="goToCart"></i>
       <span class='badge badge-primary' id='lblCartCount'>{{numProducts}}</span>
       <button v-if="loggedIn" class="btn btn-outline-info my-2 my-sm-0 ml-4" @click="doLogout">Logout</button>
       <button v-else class="btn btn-outline-info my-2 my-sm-0 ml-4" @click="goToLogin">Login</button>
@@ -39,6 +39,10 @@ export default {
 
     goToLogin: function() {
       router.push('/login')
+    },
+    
+    goToHomePage: function() {
+      router.push('/')
     }
   }
 }
@@ -65,7 +69,7 @@ export default {
     margin-left: -10px; 
 }
 
-.fa-shopping-cart {
+.cursor-pointer {
   cursor: pointer;
 }
 </style>
