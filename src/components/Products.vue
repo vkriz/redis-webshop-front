@@ -1,6 +1,12 @@
 <template>
   <div id="products">
-    <div class="container">
+    <div v-if="!loaded" class="text-center">
+      <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
+    </div>
+
+    <div v-if="loaded" class="container">
       <div v-for="(productGroup, index1) in groupedProducts" :key="index1" class="row mb-4">
         <Product v-for="(product, index2) in productGroup" :key="index2" class="col-lg-3" :product="product" />
       </div>
@@ -15,31 +21,62 @@ import axios from 'axios'
 
 export default {
   name: 'Products',
+
   props: {
     msg: String
   },
+  
   components: {
     Product
   },
+
+    data: function() {
+    return {
+      productList: [],
+      loaded: false      
+    }
+  },
+
   computed:{
     groupedProducts() {
       return _.chunk(this.productList, 4)
       // returns a nested array: 
       // [[article, article, article], [article, article, article], ...]
+    },
+    imagesToPreload() {
+      var op = this.productList.map(function(item) {
+        return item.image
+      })
+      return op
     }
   },
 
   beforeMount() {
     axios.get(this.$store.state.apiUrl + '/product/all')
-      .then(res => { this.productList = res.data })
+      .then(res => { 
+        this.productList = res.data
+        this.waitForImages()
+      })
       .catch(err => {
         console.log(err)
       })
   },
 
-  data: function() {
-    return {
-      productList: []      
+  methods: {
+    waitForImages: function () {
+      let imageLoaded = 0;
+      for (const imageSrc of this.imagesToPreload) {    
+        const img = new Image();
+        img.src = imageSrc;
+
+        img.onload = () => {
+          imageLoaded++;
+
+          if (imageLoaded === this.imagesToPreload.length) {
+            this.loaded = true;
+          }
+        };
+      }
     }
   }
 }

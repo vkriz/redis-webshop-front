@@ -1,0 +1,71 @@
+<template>
+  <nav class="navbar navbar-dark bg-dark mb-4">
+    <a class="navbar-brand" href="#">Brand name</a>
+    <div class="" id="navbarColor01">
+      <i class="fa fa-shopping-cart lead text-light" @click="goToCart"></i>
+      <span class='badge badge-primary' id='lblCartCount'>{{numProducts}}</span>
+      <button v-if="loggedIn" class="btn btn-outline-info my-2 my-sm-0 ml-4" @click="doLogout">Logout</button>
+      <button v-else class="btn btn-outline-info my-2 my-sm-0 ml-4" @click="goToLogin">Login</button>
+    </div>
+  </nav>
+</template>
+
+<script>
+import router from '../router/index.js'
+import { mapActions } from 'vuex'
+
+export default {
+  name: 'Navbar',
+
+  computed:{
+    numProducts() {
+      return localStorage.getItem("numProducts") === null ? 0 : localStorage.getItem("numProducts");
+    },
+    loggedIn() {
+      return localStorage.getItem("username") !== null;
+    }
+  },
+
+  methods: {
+    ...mapActions([
+      'doLogout'
+    ]),
+
+    goToCart: function() {
+      if(this.loggedIn) 
+        router.push('/cart')
+      else router.push('/login')
+    },
+
+    goToLogin: function() {
+      router.push('/login')
+    }
+  }
+}
+</script>
+
+<style scoped>
+.badge {
+  padding-left: 9px;
+  padding-right: 9px;
+  -webkit-border-radius: 9px;
+  -moz-border-radius: 9px;
+  border-radius: 9px;
+}
+
+.label-warning[href],
+.badge-warning[href] {
+  background-color: #c67605;
+}
+#lblCartCount {
+    font-size: 12px;
+    background: #17a2b8;
+    padding: 0 5px;
+    vertical-align: top;
+    margin-left: -10px; 
+}
+
+.fa-shopping-cart {
+  cursor: pointer;
+}
+</style>

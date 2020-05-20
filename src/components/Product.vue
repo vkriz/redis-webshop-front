@@ -17,15 +17,17 @@
               <span aria-hidden="true"><i class="fa fa-times"></i></span>
             </button>
           </div> <!-- modal-header -->
-          <div class="modal-body">
-            <img class="product-image float-left" :src="product.image" alt="Product image">
-            <div class="buy">
-              <p class="text-left mb-1">{{ product.name }}</p>
-              <p class="text-left mb-1">Unit price: {{ product.unit_price }}$</p>
-              <p class="text-left mb-4">Total price: {{ quantity * product.unit_price }}$</p>
+          <div class="modal-body text-left d-flex align-items-start">
+            <img class="product-image" :src="product.image" alt="Product image">
+
+            <div class="product-price mt-2">
+              <p class="text-left mb-1 lead">{{ product.name }}</p>
+              <p class="text-left mb-3 small">Unit price: {{ product.unit_price }}$</p>
+
+              <p class="text-left mb-1">Quantity:</p>
               <div class="input-group inline-group">
                 <div class="input-group-prepend">
-                  <button class="btn btn-outline-secondary btn-minus" @click="--quantity">
+                  <button class="btn btn-outline-secondary btn-minus" @click="quantity = Math.max(1, --quantity)">
                     <i class="fa fa-minus"></i>
                   </button>
                 </div>
@@ -36,11 +38,13 @@
                   </button>
                 </div>
               </div>
+
+              <p class="text-left mt-4">Total price: {{ quantity * product.unit_price }}$</p>
             </div>
           </div> <!-- modal-body -->
           <div class="modal-footer">
             <button class="btn btn-secondary mr-auto" data-dismiss="modal">Close</button>
-            <button class="btn btn-primary float-right" data-dismiss="modal">Add to cart</button>
+            <button class="btn btn-primary float-right" @click="addToCart">Add to cart</button>
           </div> <!-- modal-footer -->
         </div> <!-- modal-content -->
       </div> <!-- modal-dialog -->
@@ -51,26 +55,27 @@
 <script>
 export default {
   name: 'Product',
+
   props: {
     product: Object
   },
+
   data: function() {
     return {
       showModal: false,
       quantity: 1
+    }
+  },
+
+  methods: {
+    addToCart: function() {
+
     }
   }
 }
 </script>
 
 <style scoped>
-.buy {
-  padding-left: 210px;
-}
-/* input.form-control {
-  max-width: 35px;
-  padding: 0;
-}*/
 .inline-group .form-control {
   text-align: center !important;
 } 
@@ -81,7 +86,6 @@ export default {
 
 .inline-group {
   max-width: 9rem;
-  padding: .5rem;
 }
 
 .inline-group .form-control {
@@ -103,5 +107,14 @@ input::-webkit-inner-spin-button {
 /* Firefox */
 input[type=number] {
   -moz-appearance: textfield;
+}
+
+.product-image {
+  display: inline-block;
+}
+
+.product-price {
+  display: inline-block;
+  padding-left: 15px;
 }
 </style>
