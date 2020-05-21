@@ -1,14 +1,19 @@
 <template>
   <div id="product" class="col-md-3">
-    <div >
-      <img class="product-image" :src="product.image" alt="Product image">
-      <p class="mt-2 mb-1">{{ product.name }}</p>
-      <p>{{ product.unit_price }}$</p>
+    <div class="product-border">
+      <img class="product-image cursor-pointer" :src="product.image" alt="Product image" data-toggle="modal" data-target="#invModal">
+      <div class="d-flex product-div">
+        <div class="product-info text-left first pr-1">
+          <p class="mt-2 mb-1">{{ product.name }}</p>
+          <p class="mb-0">{{ product.unit_price }}$</p>
+        </div>
+        <div class="second">
+          <button type="button" class="btn btn-info btn-buy" data-toggle="modal" :data-target="'#invModal'+ index">Buy</button>
+        </div>
+      </div>
     </div>
-
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#invModal">Buy</button>
-
-    <div class="modal" id="invModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  
+    <div class="modal" :id="'invModal' + index" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
@@ -18,11 +23,11 @@
             </button>
           </div> <!-- modal-header -->
           <div class="modal-body text-left d-flex align-items-start">
-            <img class="product-image" :src="product.image" alt="Product image">
+            <img class="product-image-modal" :src="product.image" alt="Product image">
 
             <div class="product-price mt-2">
               <p class="text-left mb-1 lead">{{ product.name }}</p>
-              <p class="text-left mb-3 small">Unit price: {{ product.unit_price }}$</p>
+              <p class="text-left mb-3 small">Unit price: ${{ product.unit_price }}</p>
 
               <p class="text-left mb-1">Quantity:</p>
               <div class="input-group inline-group">
@@ -39,12 +44,18 @@
                 </div>
               </div>
 
-              <p class="text-left mt-4">Total price: {{ quantity * product.unit_price }}$</p>
+              <p class="text-left mt-4">Total price: ${{ quantity * product.unit_price }}</p>
+
+              <div v-if="saved && savingError === null" class="card border-success mb-3" style="max-width: 18rem;">
+                <div class="card-body text-success">
+                  <p class="card-text">Product has been added to your cart.</p>
+                </div>
+              </div>
             </div>
           </div> <!-- modal-body -->
           <div class="modal-footer">
             <button class="btn btn-secondary mr-auto" data-dismiss="modal">Close</button>
-            <button class="btn btn-primary float-right" @click="addToCart">Add to cart</button>
+            <button class="btn btn-info float-right" @click="addToCart">Add to cart</button>
           </div> <!-- modal-footer -->
         </div> <!-- modal-content -->
       </div> <!-- modal-dialog -->
@@ -53,36 +64,140 @@
 </template>
 
 <script>
+import router from '../router/index.js'
+import { mapState, mapActions } from 'vuex'
+import axios from 'axios'
+
 export default {
   name: 'Product',
 
   props: {
-    product: Object
+    product: Object,
+    index: Number
   },
 
   data: function() {
     return {
       showModal: false,
-      quantity: 1
+      quantity: 1,
+      savingError: null,
+      saved: false
     }
   },
 
-  methods: {
-    addToCart: function() {
+  computed: {
+    ...mapState([
+      'username',
+      'cart',
+      'numProducts',
+      'apiUrl'
+    ])
+  },
 
+  methods: {
+    ...mapActions([
+      'setNumProducts',
+      'setCart'
+    ]),
+
+    addToCart: function() {
+      if(this.username === null) {
+        router.push('/login');
+        return;
+      }
+
+      var index = -1;
+      for(var i = 0; i < this.cart.length; ++i) {
+        if(this.cart[i].product.name === this.product.name) {
+          index = i;
+          break;
+        }
+      }
+
+      if(index !== -1) {
+        this.cart[i].quantity += this.quantity;
+      } else {
+        this.cart.push({
+          quantity: this.quantity,
+          discount: 0,
+          product: this.product
+        })
+        this.setNumProducts(this.numProducts + 1)
+      }
+      this.setCart(this.cart)
+
+      let data = {
+        username: this.username,
+        active: true,
+        last_modified: "jdskal",
+        details: this.cart
+      }
+
+      let config = {
+        headers: {
+          // 'Access-Control-Allow-Origin': '*',
+          // "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, DELETE",
+          // "Content-Type": "application/json"
+        }
+      }
+
+      axios.put(this.apiUrl + '/cart/update', data, config)
+        .catch(error => {
+          this.savingError = error
+          console.log(error)
+        })
+        .finally(() => {
+          this.saved = true
+        })
     }
   }
 }
 </script>
 
 <style scoped>
-.inline-group .form-control {
-  text-align: center !important;
-} 
-.product-image {
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.product-image-modal {
   max-width: 200px;
   max-height: 200px;
 }
+
+.product-border {
+  background: #fff;
+  border: 1px solid #f2f2f2;
+  box-shadow: 0 .2rem .4rem rgba(0,0,0,.4);
+  padding: 15px;
+  height: 100%;
+}
+
+.product-image {
+  width: 100%;
+}
+
+.product-div {
+  min-height: 84px;
+}
+
+.product-div .first {
+  flex: 0 0 75%;
+}
+
+.product-div .second {
+  flex: 1;
+  position: relative;
+}
+
+.product-div .second .btn-buy {
+  position: absolute;
+  right: 5px;
+  bottom: 0;
+}
+
+.inline-group .form-control {
+  text-align: center !important;
+} 
 
 .inline-group {
   max-width: 9rem;

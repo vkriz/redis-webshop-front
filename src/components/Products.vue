@@ -8,7 +8,7 @@
 
     <div v-if="loaded" class="container">
       <div v-for="(productGroup, index1) in groupedProducts" :key="index1" class="row mb-4">
-        <Product v-for="(product, index2) in productGroup" :key="index2" class="col-lg-3" :product="product" />
+        <Product v-for="(product, index2) in productGroup" :key="index2" class="col-lg-3" :product="product" :index="4 * index1 + index2"/>
       </div>
     </div>
   </div>
@@ -72,11 +72,13 @@ export default {
         img.onload = () => {
           imageLoaded++;
 
-          if (imageLoaded === this.imagesToPreload.length) {
+          if (imageLoaded > this.imagesToPreload.length / 2) {
             this.loaded = true;
+            return
           }
         };
       }
+      this.loaded = true
     }
   }
 }

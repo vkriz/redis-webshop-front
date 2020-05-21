@@ -2,16 +2,26 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios'
 import router from '../router/index.js'
+import createPersistedState from 'vuex-persistedstate'
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
+  plugins: [
+    createPersistedState({})
+  ],
+
   state: {
     apiUrl: 'http://localhost:8080',
 
     loggingIn: false,
-    loginError: null
+    loginError: null,
+
+    username: null,
+    numProducts: 0,
+    cart: []
   },
+
   mutations: {
     loginStart: (state) => { state.loggingIn = true },
     loginStop: (state, errorMessage) => {
@@ -23,8 +33,22 @@ export default new Vuex.Store({
     },
     logout: (state) => {
       state.accessToken = null
+      state.username = null,
+      state.numProducts = 0,
+      state.cart = []
+    },
+  
+    username: (state, username) => {
+      state.username = username
+    },
+    numProducts: (state, numProducts) => {
+      state.numProducts = numProducts
+    },
+    cart: (state, cart) => {
+      state.cart = cart
     }
   },
+
   actions: {
     doLogin ({ commit, state }, username) {
       commit('loginStart')
@@ -32,9 +56,10 @@ export default new Vuex.Store({
       axios.get(state.apiUrl + '/cart/get/' + username)
         .then(response => {
           commit('loginStop', null)
-          localStorage.setItem("username", username)
-          localStorage.setItem("numProducts", response.data.details.length)
-          localStorage.setItem("cart", response.data.details)
+        
+          commit('username', username)
+          commit('numProducts', response.data.details.length)
+          commit('cart', response.data.details)
          
           router.push('/')
         })
@@ -44,13 +69,20 @@ export default new Vuex.Store({
     },
 
     doLogout ({ commit }) {
-      localStorage.removeItem('username')
-      localStorage.removeItem('numProducts')
-      localStorage.removeItem('cart')
       commit('logout')
-      router.push('/')
+      if(router.currentRoute.fullPath === '/') {
+        router.go(router.currentRoute)
+      } else {
+        router.push('/')
+      }
+    },
+
+    setNumProducts( { commit }, numProducts) {
+      commit('numProducts', numProducts)
+    },
+
+    setCart( { commit }, cart) {
+      commit('cart', cart)
     }
-  },
-  modules: {
   }
 })

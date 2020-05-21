@@ -1,17 +1,19 @@
 <template>
-  <div id="login text-center">
-    <form action="#" @submit.prevent="loginSubmit" class="form-signin">
-      <img class="mb-4" src="https://getbootstrap.com/docs/4.0/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">
+  <div id="login text-center" class="pt-5">
+    <form action="#" @submit.prevent="loginSubmit" class="form-signin text-center">
+      <img class="mb-4 mt-4 cursor-pointer" src="../assets/logo.png" alt="" width="120" height="120" @click="goToHomePage">
       <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
       <label for="inputUsername" class="sr-only">Username</label>
       <input type="text" id="inputUsernamel" class="form-control" placeholder="Username" required="" autofocus="" v-model="username">
-      <button class="btn btn-lg btn-primary btn-block mt-4" type="submit">Sign in</button>
+      <button class="btn btn-lg btn-info btn-block mt-4" type="submit">Sign in</button>
     </form>
   </div>
 </template>
 
 <script>
 import { mapState, mapActions } from 'vuex'
+import router from '../router/index.js'
+
 export default {
   name: 'Login',
 
@@ -35,6 +37,9 @@ export default {
     ]),
     loginSubmit () {
       this.doLogin(this.username)
+    },
+    goToHomePage() {
+      router.push('/')
     }
   }
 }
@@ -46,5 +51,11 @@ export default {
     max-width: 330px;
     padding: 15px;
     margin: 0 auto;
+    background: #fff;
+    box-shadow: 0 .2rem .4rem rgba(0,0,0,.4);
+  }
+
+  .cursor-pointer {
+    cursor: pointer;
   }
 </style>
