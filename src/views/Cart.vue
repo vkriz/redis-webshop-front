@@ -21,7 +21,7 @@
             <td><a href="#" @click="goToHomePage" class="btn btn-outline-info"><i class="fa fa-angle-left"></i> Continue Shopping</a></td>
             <td colspan="3" class="hidden-xs"></td>
             <td class="hidden-xs text-center"><strong>Total ${{total.toFixed(2)}}</strong></td>
-            <td class="pl-0 pr-0"><a href="" class="btn btn-info btn-block">Checkout <i class="fa fa-angle-right"></i></a></td>
+            <td class="pl-0 pr-0"><button class="btn btn-info btn-block disabled">Checkout <i class="fa fa-angle-right"></i></button></td>
           </tr>
         </tfoot>
       </table>
