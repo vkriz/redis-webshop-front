@@ -17,13 +17,12 @@
 <script>
 import Product from '@/components/Product.vue'
 import _ from 'lodash'
-import axios from 'axios'
 
 export default {
   name: 'Products',
 
   props: {
-    msg: String
+    productList: Array
   },
   
   components: {
@@ -32,9 +31,12 @@ export default {
 
     data: function() {
     return {
-      productList: [],
       loaded: false      
     }
+  },
+
+  beforeMount: function() {
+    this.waitForImages()
   },
 
   computed:{
@@ -49,17 +51,6 @@ export default {
       })
       return op
     }
-  },
-
-  beforeMount() {
-    axios.get(this.$store.state.apiUrl + '/product/all')
-      .then(res => { 
-        this.productList = res.data
-        this.waitForImages()
-      })
-      .catch(err => {
-        console.log(err)
-      })
   },
 
   methods: {

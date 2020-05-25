@@ -18,7 +18,6 @@ export default new Vuex.Store({
     loginError: null,
 
     username: null,
-    numProducts: 0,
     cart: []
   },
 
@@ -28,24 +27,26 @@ export default new Vuex.Store({
       state.loggingIn = false
       state.loginError = errorMessage
     },
-    updateAccessToken: (state, accessToken) => {
-      state.accessToken = accessToken
-    },
+    
     logout: (state) => {
-      state.accessToken = null
       state.username = null,
-      state.numProducts = 0,
       state.cart = []
     },
   
     username: (state, username) => {
       state.username = username
     },
-    numProducts: (state, numProducts) => {
-      state.numProducts = numProducts
-    },
+
     cart: (state, cart) => {
       state.cart = cart
+    },
+
+    updateProduct: (state, index, item) => {
+      state.cart[index] = item
+    },
+
+    removeProduct: (state, index) => {
+      state.cart.splice(index, 1)
     }
   },
 
@@ -53,36 +54,48 @@ export default new Vuex.Store({
     doLogin ({ commit, state }, username) {
       commit('loginStart')
 
-      axios.get(state.apiUrl + '/cart/get/' + username)
-        .then(response => {
-          commit('loginStop', null)
-        
-          commit('username', username)
-          commit('numProducts', response.data.details.length)
-          commit('cart', response.data.details)
-         
-          router.push('/')
+      axios.get(state.apiUrl + '/login/' + username)
+        .then(() => {
+          axios.get(state.apiUrl + '/cart/get/' + username)
+            .then(response => {
+              commit('loginStop', null)
+            
+              commit('username', username)
+              commit('cart', response.data.details)
+            
+              router.push('/')
+            })
+            .catch(error => {
+              commit('loginStop', error.response)
+            })
         })
         .catch(error => {
-          commit('loginStop', error.response.data.message)
+          commit('loginStop', error.response)
+        })
+      
+    },
+
+    doLogout ({ commit, state }) {
+      commit('logout')
+      axios.get(state.apiUrl + '/logout/' + state.username)
+        .catch(error => {
+          console.log(error)
+        })
+        .finally(() => {
+          if(router.currentRoute.fullPath === '/') {
+            router.go(router.currentRoute)
+          } else {
+            router.push('/')
+          }
         })
     },
 
-    doLogout ({ commit }) {
-      commit('logout')
-      if(router.currentRoute.fullPath === '/') {
-        router.go(router.currentRoute)
-      } else {
-        router.push('/')
-      }
+    updateCartProduct( { commit }, { index, item }) {
+      commit('updateProduct', index, item)
     },
 
-    setNumProducts( { commit }, numProducts) {
-      commit('numProducts', numProducts)
-    },
-
-    setCart( { commit }, cart) {
-      commit('cart', cart)
+    removeCartProduct( { commit }, index) {
+      commit('removeProduct', index)
     }
   }
 })

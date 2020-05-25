@@ -22,16 +22,20 @@ export default {
 
   computed:{
     ...mapState([
-      'numProducts',
-      'username'
-    ])
+      'username',
+      'cart'
+    ]),
+
+    numProducts: function() {
+      return this.cart == null ? 0 : this.cart.length
+    }
   },
 
   methods: {
     ...mapActions([
       'doLogout'
     ]),
-    
+
     goToCart: function() {
       if(this.username !== null) 
         router.push('/cart')

@@ -8,7 +8,7 @@
           <p class="mb-0">{{ product.unit_price }}$</p>
         </div>
         <div class="second">
-          <button type="button" class="btn btn-info btn-buy" data-toggle="modal" :data-target="'#invModal'+ index">Buy</button>
+          <button type="button" @click="resetSaving" class="btn btn-info btn-buy" data-toggle="modal" :data-target="'#invModal'+ index">Buy</button>
         </div>
       </div>
     </div>
@@ -44,7 +44,9 @@
                 </div>
               </div>
 
-              <p class="text-left mt-4">Total price: ${{ quantity * product.unit_price }}</p>
+              <span class="text-danger" v-if="discount > 0">-{{discount * 100}}%</span>
+
+              <p class="text-left mt-4">Total price: ${{ totalPrice }}</p>
 
               <div v-if="saved && savingError === null" class="card border-success mb-3" style="max-width: 18rem;">
                 <div class="card-body text-success">
@@ -55,7 +57,8 @@
           </div> <!-- modal-body -->
           <div class="modal-footer">
             <button class="btn btn-secondary mr-auto" data-dismiss="modal">Close</button>
-            <button class="btn btn-info float-right" @click="addToCart">Add to cart</button>
+            <button v-if="saved && savingError === null" class="btn btn-info float-right" @click="goToCart" data-dismiss="modal">Go to cart</button>
+            <button v-else class="btn btn-info float-right" @click="addToCart">Add to cart</button>
           </div> <!-- modal-footer -->
         </div> <!-- modal-content -->
       </div> <!-- modal-dialog -->
@@ -89,16 +92,39 @@ export default {
     ...mapState([
       'username',
       'cart',
-      'numProducts',
       'apiUrl'
-    ])
+    ]),
+
+    discount: function() {
+      if(this.quantity == 1) {
+        return 0
+      }
+
+      if(this.quantity == 2) {
+        return 0.1
+      }
+
+      return 0.2
+    },
+     
+    totalPrice: function() {
+      return ((1 - this.discount) * this.quantity * this.product.unit_price).toFixed(2)
+    }
   },
 
   methods: {
     ...mapActions([
-      'setNumProducts',
-      'setCart'
+      'updateCart'
     ]),
+
+    resetSaving: function() {
+      this.savingError = null
+      this.saved = false
+    },
+
+    goToCart: function() {
+      router.push('/cart')
+    },
 
     addToCart: function() {
       if(this.username === null) {
@@ -119,29 +145,19 @@ export default {
       } else {
         this.cart.push({
           quantity: this.quantity,
-          discount: 0,
+          discount: this.discount,
           product: this.product
         })
-        this.setNumProducts(this.numProducts + 1)
       }
-      this.setCart(this.cart)
+      this.updateCart(this.cart)
 
       let data = {
         username: this.username,
         active: true,
-        last_modified: "jdskal",
         details: this.cart
       }
 
-      let config = {
-        headers: {
-          // 'Access-Control-Allow-Origin': '*',
-          // "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, DELETE",
-          // "Content-Type": "application/json"
-        }
-      }
-
-      axios.put(this.apiUrl + '/cart/update', data, config)
+      axios.put(this.apiUrl + '/cart/update', data)
         .catch(error => {
           this.savingError = error
           console.log(error)

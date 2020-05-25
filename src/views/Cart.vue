@@ -14,44 +14,9 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(item, index) in cart" :key="index">
-            <td data-th="Product">
-              <div class="row">
-                <div class="col-sm-3 hidden-xs"><img :src="item.product.image" :alt="item.product.name" class="img-responsive product-img"/></div>
-                <div class="col-sm-9">
-                  <h5 class="nomargin">{{item.product.name}}</h5>
-                </div>
-							</div>
-						</td>
-            <td data-th="Price" class="text-center">${{item.product.unit_price}}</td>
-            <td data-th="Quantity" class="text-center">
-              <div class="input-group inline-group">
-                <div class="input-group-prepend">
-                  <button class="btn btn-outline-secondary btn-minus" @click="quantity = Math.max(1, --item.quantity)">
-                    <i class="fa fa-minus"></i>
-                  </button>
-                </div>
-                <input class="form-control quantity" min="1" name="quantity" type="number" :value="item.quantity">
-                <div class="input-group-append">
-                  <button class="btn btn-outline-secondary btn-plus" @click="++item.quantity">
-                    <i class="fa fa-plus"></i>
-                  </button>
-                </div>
-              </div>
-            </td>
-            <td v-if="item.discount !== 0" data-th="Discount" class="text-center">{{Math.floor(item.discount * 100)}}%</td>
-            <td v-else data-th="Discount" class="text-center">-</td>
-            <td data-th="Subtotal" class="text-center">${{((1 - item.discount) * item.product.unit_price * item.quantity).toFixed(2)}}</td>
-            <td class="actions" data-th="">
-							<button class="btn btn-info btn-sm"><i class="fa fa-refresh"></i></button>
-							<button class="btn btn-danger btn-sm"><i class="fa fa-trash-o"></i></button>								
-						</td>
-          </tr>
+          <CartProduct v-for="(item, index) in cart" :key="index" :item="item" :index="index"/>
         </tbody>
         <tfoot>
-          <!-- <tr class="visible-xs">
-            <td class="text-center"><strong>Total 1.99</strong></td>
-          </tr> -->
           <tr>
             <td><a href="#" @click="goToHomePage" class="btn btn-outline-info"><i class="fa fa-angle-left"></i> Continue Shopping</a></td>
             <td colspan="3" class="hidden-xs"></td>
@@ -67,6 +32,7 @@
 <script>
 // @ is an alias to /src
 import Navbar from '@/components/Navbar.vue'
+import CartProduct from '@/components/CartProduct.vue'
 import router from '../router/index.js'
 import { mapState } from 'vuex'
 
@@ -74,7 +40,15 @@ export default {
   name: 'Cart',
 
   components: {
-    Navbar
+    Navbar,
+    CartProduct
+  },
+
+  data: function() {
+    return {
+      saving: false,
+      saved: false
+    }
   },
 
   computed: {
@@ -101,11 +75,6 @@ export default {
 </script>
 
 <style scoped>
-  .product-img {
-    max-height: 80px;
-    max-width: 80px;
-  }
-
   .container {
     padding-top: 15px;
     background: #fff;
@@ -115,37 +84,4 @@ export default {
   .table th {
     border-top: none;
   }
-
-  .inline-group .form-control {
-  text-align: center !important;
-} 
-
-.inline-group {
-  max-width: 9rem;
-}
-
-.inline-group .form-control {
-  text-align: right;
-}
-
-.btn-plus, .btn-minus {
-  padding: .1rem .1rem;
-}
-
-.form-control[type="number"]::-webkit-inner-spin-button,
-.form-control[type="number"]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-/* Firefox */
-input[type=number] {
-  -moz-appearance: textfield;
-}
 </style>

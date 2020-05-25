@@ -6,6 +6,12 @@
       <label for="inputUsername" class="sr-only">Username</label>
       <input type="text" id="inputUsernamel" class="form-control" placeholder="Username" required="" autofocus="" v-model="username">
       <button class="btn btn-lg btn-info btn-block mt-4" type="submit">Sign in</button>
+
+      <div v-if="loginError != null" class="card border-danger mt-3" style="max-width: 18rem;">
+        <div class="card-body text-danger">
+          <p class="card-text">Invalid username. Please try again. </p>
+        </div>
+      </div>
     </form>
   </div>
 </template>
