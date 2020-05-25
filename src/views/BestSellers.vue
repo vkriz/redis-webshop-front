@@ -25,7 +25,7 @@ export default {
   },
 
   beforeMount() {
-    axios.get(this.$store.state.apiUrl + '/product/sort')
+    axios.get(this.$store.state.apiUrl + '/cart/bestseller')
       .then(res => { 
         this.productList = res.data
       })
