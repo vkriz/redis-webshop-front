@@ -120,7 +120,7 @@ export default {
         })
         .finally(() => {
           this.saved = true
-          this.updateCartProduct(this.index, this.item)
+          this.updateCartProduct({index: this.index, item: this.item})
         })
 
       this.saved = true;

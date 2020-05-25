@@ -41,12 +41,16 @@ export default new Vuex.Store({
       state.cart = cart
     },
 
-    updateProduct: (state, index, item) => {
-      state.cart[index] = item
+    updateProduct: (state, payload) => {
+      state.cart[payload.index] = payload.item
     },
 
     removeProduct: (state, index) => {
       state.cart.splice(index, 1)
+    },
+
+    addProduct: (state, item) => {
+      state.cart.push(item)
     }
   },
 
@@ -90,12 +94,19 @@ export default new Vuex.Store({
         })
     },
 
-    updateCartProduct( { commit }, { index, item }) {
-      commit('updateProduct', index, item)
+    updateCartProduct( { commit }, payload) {
+      console.log(payload.index)
+      console.log(payload.item)
+      commit('updateProduct', payload)
     },
 
     removeCartProduct( { commit }, index) {
       commit('removeProduct', index)
+    },
+
+    addCartProduct( { commit }, item) {
+      console.log(item)
+      commit('addProduct', item)
     }
   }
 })

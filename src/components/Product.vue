@@ -114,7 +114,8 @@ export default {
 
   methods: {
     ...mapActions([
-      'updateCart'
+      'addCartProduct',
+      'updateCartProduct'
     ]),
 
     resetSaving: function() {
@@ -124,6 +125,18 @@ export default {
 
     goToCart: function() {
       router.push('/cart')
+    },
+
+    calcTotalDiscount: function(totalQuantity) {
+      if(totalQuantity > 2) {
+        return 0.2
+      }
+
+      if(totalQuantity == 2) {
+        return 0.1
+      }
+
+      return 0
     },
 
     addToCart: function() {
@@ -141,15 +154,21 @@ export default {
       }
 
       if(index !== -1) {
-        this.cart[i].quantity += this.quantity;
+        let newItem = {
+          quantity: this.quantity + this.cart[index].quantity,
+          discount: this.calcTotalDiscount(this.quantity + this.cart[index].quantity),
+          product: this.product,
+          price: ((1 - this.calcTotalDiscount(this.quantity + this.cart[index].quantity)) * (this.quantity + this.cart[index].quantity) * this.product.unit_price).toFixed(2)
+        }
+        this.updateCartProduct({index: index, item: newItem})
       } else {
-        this.cart.push({
+        this.addCartProduct({
           quantity: this.quantity,
           discount: this.discount,
-          product: this.product
+          product: this.product,
+          price: ((1 - this.discount) * this.quantity * this.product.unit_price).toFixed(2)
         })
       }
-      this.updateCart(this.cart)
 
       let data = {
         username: this.username,
