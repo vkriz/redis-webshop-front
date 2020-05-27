@@ -5,7 +5,7 @@
       <h2 class="mb-4">Best selling items</h2>
     </div>
     
-    <Products :productList="productList"/>
+    <Products :productList="productList" :loaded="loaded"/>
   </div>
 </template>
 
@@ -24,7 +24,29 @@ export default {
 
   data: function() {
     return {
-      productList: []   
+      productList: [],
+      loaded: false
+    }
+  },
+
+  methods: {
+    waitForImages: function () {
+      let imageLoaded = 0;
+      for (const imageSrc of this.imagesToPreload) { 
+        const img = new Image();
+        img.src = imageSrc;
+
+        let that = this
+        img.onload = () => {
+          imageLoaded++;
+
+          if (imageLoaded > 0.7 * that.imagesToPreload.length) {
+            that.loaded = true;
+            return
+          }
+        };
+      }
+      this.loaded = true
     }
   },
 
@@ -32,10 +54,20 @@ export default {
     axios.get(this.$store.state.apiUrl + '/cart/bestseller')
       .then(res => { 
         this.productList = res.data
+        this.waitForImages()
       })
       .catch(err => {
         console.log(err)
       })
+  },
+
+  computed: {
+    imagesToPreload() {
+      var op = this.productList.map(function(item) {
+        return item.image
+      })
+      return op
+    }
   }
 }
 </script>

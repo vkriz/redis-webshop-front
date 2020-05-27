@@ -27,6 +27,7 @@
     <td data-th="Discount" class="text-center">{{discount}}</td>
     <td data-th="Subtotal" class="text-center">${{calculatePrice()}}</td>
     <td class="actions" data-th="">
+      <span :class="showSuccess ? 'text-success' : 'text-transparent'"><i class="mr-1 fa fa-check" aria-hidden="true"></i></span>
       <button class="btn btn-info btn-sm" title="Update quantity" @click="saveChanges"><i class="fa fa-refresh"></i></button>
       <button class="btn btn-danger btn-sm" title="Remove from cart" @click="removeFromCart"><i class="fa fa-trash-o"></i></button>								
     </td>
@@ -47,7 +48,8 @@ export default {
 
   data: function() {
     return {
-      loaded: false      
+      loaded: false,
+      showSuccess: false     
     }
   },
 
@@ -79,11 +81,13 @@ export default {
     ]),
 
     increaseQuantity: function() {
+      this.showSuccess = false
       this.item.quantity = Math.max(1, ++this.item.quantity)
       this.calculatePrice()  
     },
 
     decreaseQuantity: function() {
+      this.showSuccess = false
       this.item.quantity = Math.max(1, --this.item.quantity)
       this.calculatePrice()
     },
@@ -91,13 +95,13 @@ export default {
     calculatePrice: function() {
       if(this.item.quantity === 1) {
         this.item.discount = 0
-        this.item.price = ((1 - this.item.discount) * this.item.product.unit_price * this.item.quantity).toFixed(2)
+        this.item.price = (this.item.product.unit_price * this.item.quantity).toFixed(2)
       } else if(this.item.quantity === 2) {
         this.item.discount = 0.1
-        this.item.price = ((1 - this.item.discount) * this.item.product.unit_price * this.item.quantity).toFixed(2)
+        this.item.price = (0.9 * this.item.product.unit_price * this.item.quantity).toFixed(2)
       } else {
         this.item.discount = 0.2
-        this.item.price = ((1 - this.item.discount) * this.item.product.unit_price * this.item.quantity).toFixed(2)
+        this.item.price = (0.8 * this.item.product.unit_price * this.item.quantity).toFixed(2)
       }
 
       return this.item.price
@@ -114,6 +118,9 @@ export default {
       }
 
       axios.put(this.apiUrl + '/cart/update', data)
+        .then(() => {
+          this.showSuccess = true
+        }) 
         .catch(error => {
           this.savingError = error
           console.log(error)
@@ -129,7 +136,7 @@ export default {
 
     removeFromCart: function() {
       if(confirm("Are you sure you want to remove this product from your cart?")) {
-        //this.cart.splice(index, 1);
+        this.showSuccess = false;
         this.removeCartProduct(this.index);
       }
     }
@@ -138,6 +145,9 @@ export default {
 </script>
 
 <style scoped>
+  .text-transparent {
+    color: transparent;
+  }
 
   .product-img {
     max-height: 80px;

@@ -5,7 +5,7 @@
       <div class="d-flex product-div">
         <div class="product-info text-left first pr-1">
           <p class="mt-2 mb-1">{{ product.name }}</p>
-          <p class="mb-0">{{ product.unit_price }}$</p>
+          <p class="mb-0">${{ product.unit_price }}</p>
         </div>
         <div class="second">
           <button type="button" @click="resetSaving" class="btn btn-info btn-buy" data-toggle="modal" :data-target="'#invModal'+ index">Buy</button>
@@ -58,7 +58,7 @@
           <div class="modal-footer">
             <button class="btn btn-secondary mr-auto" data-dismiss="modal">Close</button>
             <button v-if="saved && savingError === null" class="btn btn-info float-right" @click="goToCart" data-dismiss="modal">Go to cart</button>
-            <button v-else class="btn btn-info float-right" @click="addToCart">Add to cart</button>
+            <button v-else class="btn btn-info float-right" :data-dismiss="username === null ? 'modal' : ''" @click="addToCart">Add to cart</button>
           </div> <!-- modal-footer -->
         </div> <!-- modal-content -->
       </div> <!-- modal-dialog -->
