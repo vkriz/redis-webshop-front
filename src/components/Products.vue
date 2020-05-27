@@ -22,54 +22,19 @@ export default {
   name: 'Products',
 
   props: {
-    productList: Array
+    productList: Array,
+    loaded: Boolean
   },
   
   components: {
     Product
   },
-
-    data: function() {
-    return {
-      loaded: false      
-    }
-  },
-
-  beforeMount: function() {
-    this.waitForImages()
-  },
-
+  
   computed:{
     groupedProducts() {
       return _.chunk(this.productList, 4)
       // returns a nested array: 
       // [[article, article, article], [article, article, article], ...]
-    },
-    imagesToPreload() {
-      var op = this.productList.map(function(item) {
-        return item.image
-      })
-      return op
-    }
-  },
-
-  methods: {
-    waitForImages: function () {
-      let imageLoaded = 0;
-      for (const imageSrc of this.imagesToPreload) {    
-        const img = new Image();
-        img.src = imageSrc;
-
-        img.onload = () => {
-          imageLoaded++;
-
-          if (imageLoaded > this.imagesToPreload.length / 2) {
-            this.loaded = true;
-            return
-          }
-        };
-      }
-      this.loaded = true
     }
   }
 }

@@ -15,9 +15,24 @@
           </p>
         </div>
       </div>
-    </div>
     
-    <Products :productList="productList"/>
+
+      <div class="dropdown mb-3">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Sort by
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <a class="dropdown-item cursor-pointer" @click="sort('price', true)">Price ascending</a>
+          <a class="dropdown-item cursor-pointer" @click="sort('price', false)">Price descending</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item cursor-pointer" @click="sort('name', true)">Name ascending</a>
+          <a class="dropdown-item cursor-pointer" @click="sort('name', false)">Name descending</a>
+        </div>
+      </div>
+
+    </div>
+
+    <Products :productList="productList" :loaded="loaded"/>
   </div>
 </template>
 
@@ -37,25 +52,67 @@ export default {
 
   data: function() {
     return {
-      productList: []   
+      productList: [],
+      loaded: false
     }
   },
 
   methods: {
+    sort: function(sortBy, ascending) {
+      axios.get(this.$store.state.apiUrl + '/product/sort?sortBy=' + sortBy + '&asc=' + ascending)
+      .then(res => { 
+        this.productList = res.data
+        this.waitForImages()
+      })
+      .catch(err => {
+        console.log(err)
+      })
+    },
+
     goToBestSellers: function() {
       router.push('/bestsellers')
+    },
+
+    waitForImages: function () {
+      let imageLoaded = 0;
+      for (const imageSrc of this.imagesToPreload) { 
+        const img = new Image();
+        img.src = imageSrc;
+
+        let that = this
+        img.onload = () => {
+          imageLoaded++;
+
+          if (imageLoaded > 0.7 * that.imagesToPreload.length) {
+            that.loaded = true;
+            return
+          }
+        };
+      }
+      this.loaded = true
     }
   },
 
-  beforeMount() {
+  computed: {
+    imagesToPreload() {
+      var op = this.productList.map(function(item) {
+        return item.image
+      })
+      return op
+    }
+  },
+
+  beforeCreate() {
     axios.get(this.$store.state.apiUrl + '/product/all')
       .then(res => { 
         this.productList = res.data
+        this.waitForImages()
       })
       .catch(err => {
         console.log(err)
       })
   }
+
 }
 </script>
 
